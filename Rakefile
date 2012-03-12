@@ -1,3 +1,5 @@
+#githugsks
+
 require 'rake/testtask'
 
 desc "run the people generator to start with up-to-date list of people"
