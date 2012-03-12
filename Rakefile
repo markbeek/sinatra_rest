@@ -11,7 +11,7 @@ task :run_service do
 end
 
 desc "run all tests using rake test"
-Rake::TestTask.new("test" => [:generate_persons]) do |t|
+Rake::TestTask.new("test" =>) do |t|
 	t.pattern = "test/test*.rb"
 	t.warning = true
 end
