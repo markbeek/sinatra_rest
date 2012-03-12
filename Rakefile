@@ -2,7 +2,7 @@ require 'rake/testtask'
 
 desc "run the people generator to start with up-to-date list of people"
 task :generate_persons do
-	ruby "-I. data/test_person_resource_generator.rb"
+	ruby "-I. test/baseline_person_resource_generator.rb"
 end
 
 desc "start webserver and people service"
@@ -11,7 +11,7 @@ task :run_service do
 end
 
 desc "run all tests using rake test"
-Rake::TestTask.new("test" =>) do |t|
+Rake::TestTask.new("test") do |t|
 	t.pattern = "test/test*.rb"
 	t.warning = true
 end

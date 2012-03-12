@@ -16,6 +16,6 @@ persons = {
 	}
 }
 
-File.open('test_persons.yaml','w') do |f|
+File.open('test/baseline_persons.yaml','w') do |f|
 	YAML.dump(persons,f)
 end
