@@ -7,7 +7,7 @@ require 'yaml'
 
 class YamlDao
 
-	#data expected to be an array
+	#data expected to be a hash of hashes, person_id => {person_data}
 	def initialize(file)
 		@file = file
 		@data = nil
