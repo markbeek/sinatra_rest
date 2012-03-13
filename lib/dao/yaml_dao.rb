@@ -11,18 +11,13 @@ class YamlDao
 	def initialize(file)
 		@file = file
 		@data = nil
-		File.open(@file) do |f|
-			@data = YAML.load(f)
-		end
+		sync
 		@data ||= {}	
 	end
 
 	def create(person_id,person_info)	#string,hash
 		@data[person_id] = person_info
-		#synchronize with file
-		File.open(@file,'w') do |f|
-			YAML.dump(@data,f)
-		end
+		sync
 	end
 	
 	def retrieve(person_id)
@@ -31,18 +26,21 @@ class YamlDao
 
 	def update(person_id,updated_person_info)
 		@data[person_id] = updated_person_info
-		#synchronize with file
-		File.open(@file,'w') do |f|
-			YAML.dump(@data,f)
-		end		
+		sync	
 	end
 
 	def delete(person_id)
 		@data.delete(person_id)
-		#synchronize with file
+		sync
+	end	
+	
+	private
+	
+	#synchronize with file
+	def sync
 		File.open(@file,'w') do |f|
 			YAML.dump(@data,f)
-		end
-	end	
+		end	
+	end
 	
 end
