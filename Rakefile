@@ -7,7 +7,7 @@ end
 
 desc "start webserver and person service"
 task :run do
-	ruby "-I. person_rest_service.rb"
+	ruby "-I. bin/person_rest_service.rb"
 end
 
 desc "run all tests using rake test"

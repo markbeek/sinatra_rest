@@ -18,4 +18,11 @@ get '/person/:id' do
 	person_json = JSON.generate(person_data) 
 end
 
+post '/person' do
+	p params
+	#person_dao = YamlDao.new(DATA_FILE)
+	#person_dao.create(params[:id],{:name => params[:name], :age => params[:age]})
+	"OK"
+end
+
 puts "person service started"
