@@ -19,7 +19,6 @@ class YamlDao
 
 	def create(person_id,person_info)	#string,hash
 		@data[person_id] = person_info
-		#synchronize with file
 		sync
 	end
 	
@@ -29,13 +28,11 @@ class YamlDao
 
 	def update(person_id,updated_person_info)
 		@data[person_id] = updated_person_info
-		#synchronize with file
 		sync	
 	end
 
 	def delete(person_id)
 		@data.delete(person_id)
-		#synchronize with file
 		sync
 	end	
 	
