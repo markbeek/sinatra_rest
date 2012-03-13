@@ -1,24 +1,21 @@
 require 'sinatra'
 require 'json'
 require 'yaml'
+require_relative '../lib/dao/yaml_dao'
 
-puts "starting people service"
+puts "starting person service"
 
-people = {}
-File.open('people.yaml') do |f|
-	people = YAML.load(f)
-end
+DATA_FILE = 'data/persons.yaml'
 
 before do
-	content_type "application/json"	#both browsers treat this as a download, have to open in separate application 
-	#content_type :txt	#this is rendered directly in the browser
+	#content_type "application/json"	#both browsers treat this as a download, have to open in separate application 
+	content_type :txt	#this is rendered directly in the browser
 end
 
-get '/user/:id' do
-	user_id = params[:id]
-	user_data = people[user_id]
-	user_json = user_data ? JSON.generate(user_data) : JSON.generate({:no_user => "no person found with user id #{user_id}"})
-	user_json
+get '/person/:id' do
+	person_dao = YamlDao.new(DATA_FILE)
+	person_data = person_dao.retrieve(params[:id])
+	person_json = JSON.generate(person_data) 
 end
 
-puts "service started"
+puts "person service started"

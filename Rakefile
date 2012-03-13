@@ -1,5 +1,3 @@
-#githugsks
-
 require 'rake/testtask'
 
 desc "run the people generator to start with up-to-date list of people"
@@ -7,8 +5,8 @@ task :generate_persons do
 	ruby "-I. test/baseline_person_resource_generator.rb"
 end
 
-desc "start webserver and people service"
-task :run_service do
+desc "start webserver and person service"
+task :run do
 	ruby "-I. person_rest_service.rb"
 end
 
@@ -18,4 +16,4 @@ Rake::TestTask.new("test") do |t|
 	t.warning = true
 end
 
-task :default => [:run_service]
+task :default => [:run]

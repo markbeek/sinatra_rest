@@ -5,7 +5,7 @@
 
 require 'test/unit'
 require 'yaml'
-require_relative '../lib/dao/yaml_dao.rb'
+require_relative '../lib/dao/yaml_dao'
 
 DATA_FILE = 'test/baseline_persons.yaml'
 KNOWN_PERSON_ID = 'msinclair'
