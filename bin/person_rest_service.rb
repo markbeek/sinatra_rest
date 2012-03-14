@@ -7,9 +7,15 @@ puts "starting person service"
 
 DATA_FILE = 'data/persons.yaml'
 
+puts "ARGV[0]: #{ARGV[0]}"
+
 before do
 	#content_type "application/json"	#both browsers treat this as a download, have to open in separate application 
 	content_type :txt	#this is rendered directly in the browser
+end
+
+get '/persontest' do
+	JSON.generate({"name" => "Mary"})
 end
 
 get '/person/:id' do
