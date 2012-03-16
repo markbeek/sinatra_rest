@@ -56,7 +56,17 @@ class PersonServiceTest < Test::Unit::TestCase
 		post '/person', req
 		response_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
-		assert_equal "/person/pmayber", response_hash['url']
+		assert_equal "/person/prisci", response_hash['url']
+puts "response_hash['url']: #{response_hash['url']}"
+=begin
+		#just for kicks, user the url for a get
+		get response_hash['url']
+		person_hash = JSON.parse(last_response.body)
+		assert_equal 200, last_response.status
+		assert_equal "Priscilla Mayberry", person_hash['name']
+		assert_equal 23, person_hash['age']	
+=end
+		
 	end
 
 end

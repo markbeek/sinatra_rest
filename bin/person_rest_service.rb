@@ -17,6 +17,12 @@ if ARGV[0] && ARGV[0].match(/yaml$/)
 	data_file = ARGV[0]
 end
 
+def generate_person_id(user_name)
+	puts "generate_user_id: #{user_name.strip.downcase.slice(0..5)}"
+	user_name.strip.downcase.slice(0..5)
+
+end
+
 before do
 	content_type "application/json"	#both browsers treat this as a download, have to open in separate application 
 	#content_type :txt	#this is rendered directly in the browser
@@ -33,13 +39,13 @@ get '/person/:id' do
 end
 
 post '/person' do
-	puts "post params object"
-	p params
-	puts "request body: #{request.body.read}"
-	puts
-	#person_dao = YamlDao.new(data_file)
-	#person_dao.create(params[:id],{:name => params[:name], :age => params[:age]})
-	JSON.generate({"url" => "/person/pmayber"})
+	#puts "request body: #{request.body.read}"
+	person_data = JSON.parse(request.body.read)
+	person_dao = YamlDao.new(data_file)
+	person_id = generate_person_id(person_data['name'])
+	#puts "generate_user_id params[:name]: #{generate_user_id(params[:name])}"
+	person_dao.create(person_id, {:name => person_data["name"], :age => person_data['age']})
+	JSON.generate({"url" => "/person/#{person_id}"})
 end
 
 puts "person service started"
