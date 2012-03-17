@@ -26,14 +26,23 @@ class YamlDao
 		@data[person_id]
 	end
 
+	#return 1 on successful update, else 0
 	def update(person_id,updated_person_info)
-		@data[person_id] = updated_person_info
-		sync	
+		if @data[person_id]
+			@data[person_id] = updated_person_info
+			sync
+			1
+		else
+			0
+		end
 	end
 
+	#return 1 if a deletion actually occurred, 0 if nothing to delete
 	def delete(person_id)
+		result = @data[person_id] ? 1 : 0
 		@data.delete(person_id)
 		sync
+		result
 	end	
 	
 	private

@@ -117,7 +117,8 @@ class YamlDaoTest < Test::Unit::TestCase
 		assert_equal(KNOWN_PERSON_NAME, person[:name])
 		assert_equal(KNOWN_AGE, person[:age])
 		#now test delete
-		@yaml_dao.delete(KNOWN_PERSON_ID)
+		result = @yaml_dao.delete(KNOWN_PERSON_ID)
+		assert_equal 1, result
 		assert_nil(@yaml_dao.retrieve(KNOWN_PERSON_ID))
 	end
 
