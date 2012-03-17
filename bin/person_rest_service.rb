@@ -6,8 +6,6 @@ require 'json'
 require 'yaml'
 require_relative '../lib/dao/yaml_dao'
 
-puts "starting person service"
-
 #use test data file by default
 DEFAULT_DATA_FILE = 'test/baseline_persons.yaml'
 
@@ -33,7 +31,7 @@ before do
 	#content_type :txt	#this is rendered directly in the browser
 end
 
-#Create (request must include a JSON response body)
+#Create (request must include a JSON body)
 post '/person' do
 	req_body = request.body.read
 	if req_body
@@ -56,7 +54,6 @@ end
 get '/person/:id' do
 	person_dao = YamlDao.new(data_file)
 	person_data = person_dao.retrieve(params[:id])
-	puts "MAB person_data: #{person_data}"
 	if person_data
 		person_json = JSON.generate(person_data)
 	else
@@ -64,7 +61,7 @@ get '/person/:id' do
 	end
 end
 
-#Update (request must include a JSON response body)
+#Update (request must include a JSON body)
 post '/person/:id' do
 	req_body = request.body.read
 	if req_body
@@ -96,7 +93,5 @@ delete '/person/:id' do
 		status 404
 	end
 end
-
-
 
 puts "person service started"
