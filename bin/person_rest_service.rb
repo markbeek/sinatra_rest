@@ -16,6 +16,7 @@ data_file = DEFAULT_DATA_FILE
 if ARGV[0] && ARGV[0].match(/yaml$/)
 	data_file = ARGV[0]
 end
+puts "********data_file: #{data_file}*********"
 
 def generate_person_id(person_name)
 	(person_name && !person_name.empty?) ? person_name.downcase.gsub(/\s/, '').gsub(/\./,'').slice(0..5) : nil
@@ -29,13 +30,9 @@ end
 
 #Create (request must include a JSON response body)
 post '/person' do
-
-	puts "MAB person_rest_service, entering create with id: #{params[:id]}"
-
 	person_data = JSON.parse(request.body.read)
 	person_dao = YamlDao.new(data_file)
 	person_id = generate_person_id(person_data['name'])
-	#puts "generate_user_id params[:name]: #{generate_user_id(params[:name])}"
 	person_dao.create(person_id, {:name => person_data["name"], :age => person_data['age']})
 	JSON.generate({"url" => "/person/#{person_id}"})
 end
@@ -49,9 +46,6 @@ end
 
 #Update (request must include a JSON response body)
 post '/person/:id' do
-	
-	puts "MAB person_rest_service, entering update with id: #{params[:id]}"
-
 	person_data = JSON.parse(request.body.read)
 	person_dao = YamlDao.new(data_file)
 	result = person_dao.update(params[:id], person_data)

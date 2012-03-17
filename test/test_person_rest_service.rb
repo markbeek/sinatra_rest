@@ -163,7 +163,8 @@ puts "response_hash['url']: #{response_hash['url']}"
 	end
 
 	def test_update_not_found
-	
+		post '/person/ajbjrt', JSON.generate({"name" => "whatever", "age" => 77})
+		assert_equal 404, last_response.status
 	end
 	
 end

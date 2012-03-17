@@ -39,10 +39,13 @@ class YamlDao
 
 	#return 1 if a deletion actually occurred, 0 if nothing to delete
 	def delete(person_id)
-		result = @data[person_id] ? 1 : 0
-		@data.delete(person_id)
-		sync
-		result
+		if @data[person_id]
+			@data.delete(person_id)
+			sync
+			1
+		else
+			0
+		end
 	end	
 	
 	private
