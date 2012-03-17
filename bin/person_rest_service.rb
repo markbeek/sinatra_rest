@@ -1,3 +1,6 @@
+#to do:
+#handle more error conditions: JSON object, but without name or age
+
 require 'sinatra'
 require 'json'
 require 'yaml'
@@ -5,8 +8,8 @@ require_relative '../lib/dao/yaml_dao'
 
 puts "starting person service"
 
-#"production" data file
-DEFAULT_DATA_FILE = 'data/persons.yaml'
+#use test data file by default
+DEFAULT_DATA_FILE = 'test/baseline_persons.yaml'
 
 #we may pass in a test data file,
 #which we will use,
@@ -30,29 +33,54 @@ end
 
 #Create (request must include a JSON response body)
 post '/person' do
-	person_data = JSON.parse(request.body.read)
-	person_dao = YamlDao.new(data_file)
-	person_id = generate_person_id(person_data['name'])
-	person_dao.create(person_id, {:name => person_data["name"], :age => person_data['age']})
-	JSON.generate({"url" => "/person/#{person_id}"})
+	req_body = request.body.read
+	if req_body
+		begin
+			person_data = JSON.parse(req_body)
+			person_dao = YamlDao.new(data_file)
+			person_id = generate_person_id(person_data['name'])
+			person_dao.create(person_id, {:name => person_data["name"], :age => person_data['age']})
+			JSON.generate({"url" => "/person/#{person_id}"})
+		rescue => e
+			puts "MAB error message: #{e.message}"
+			status 400	#Bad Request
+		end
+	else
+		status 400 #Bad Request
+	end
 end
 
 #Retrieve
 get '/person/:id' do
 	person_dao = YamlDao.new(data_file)
 	person_data = person_dao.retrieve(params[:id])
-	person_json = JSON.generate(person_data) 
+	puts "MAB person_data: #{person_data}"
+	if person_data
+		person_json = JSON.generate(person_data)
+	else
+		status 404	#Not Found
+	end
 end
 
 #Update (request must include a JSON response body)
 post '/person/:id' do
-	person_data = JSON.parse(request.body.read)
-	person_dao = YamlDao.new(data_file)
-	result = person_dao.update(params[:id], person_data)
-	if result == 1
-		JSON.generate({"updated" => result})
+	req_body = request.body.read
+	if req_body
+		begin
+			person_data = JSON.parse(req_body)
+			person_dao = YamlDao.new(data_file)
+			result = person_dao.update(params[:id], person_data)
+			if result == 1
+				JSON.generate({"updated" => result})
+			else
+				status 404 #Not Found
+			end
+		rescue => e
+			puts "error message: #{e.message}"
+			status 400	#Bad Request
+		end
 	else
-		status 404
+		status 400 #Bad Request
 	end
 end
 

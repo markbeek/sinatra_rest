@@ -5,9 +5,9 @@ task :generate_persons do
 	ruby "-I. test/baseline_person_resource_generator.rb"
 end
 
-desc "start webserver and person service"
+desc "start webserver and person service with production data file"
 task :run do
-	ruby "-I. bin/person_rest_service.rb"
+	ruby "-I. bin/person_rest_service.rb data/persons.yaml"
 end
 
 desc "run all tests using rake test"

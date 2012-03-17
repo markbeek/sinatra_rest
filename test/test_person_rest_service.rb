@@ -23,12 +23,10 @@ class PersonServiceTest < Test::Unit::TestCase
 		puts "setting up baseline file"
 		system("ruby -I. test/baseline_person_resource_generator.rb")
 		puts "baseline file is set up"
-		@yaml_dao = YamlDao.new(DATA_FILE)
 	end
 	
 	#delete file
 	def teardown
-		@yaml_dao = nil
 		num_files_deleted = File.delete(DATA_FILE)
 		assert_equal(1,num_files_deleted)
 	end
@@ -78,7 +76,6 @@ class PersonServiceTest < Test::Unit::TestCase
 	
 	def test_get_existing
 		get '/person/cabbot'
-		puts "test_get_person, last_response.body: #{last_response.body}"
 		person_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
 		assert_equal "Cindy Abbot", person_hash['name']
@@ -86,7 +83,8 @@ class PersonServiceTest < Test::Unit::TestCase
 	end
 
 	def test_get_not_found
-
+		get 'person/obo'
+		assert_equal 404, last_response.status
 	end
 	
 	def test_post
@@ -95,13 +93,22 @@ class PersonServiceTest < Test::Unit::TestCase
 		response_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
 		assert_equal TEST_PERSON_URL, response_hash['url']
-puts "response_hash['url']: #{response_hash['url']}"
 		#just for kicks, use the url for a get
 		get response_hash['url']
 		person_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
 		assert_equal TEST_PERSON_NAME, person_hash['name']
 		assert_equal TEST_PERSON_AGE, person_hash['age']	
+	end
+
+	def test_post_no_request_body
+		post '/person'
+		assert_equal 400, last_response.status
+	end
+
+	def test_post_malformed_request_body
+		post '/person', "regular string"
+		assert_equal 400, last_response.status
 	end
 	
 	#add a person and test, then delete and test
@@ -142,14 +149,15 @@ puts "response_hash['url']: #{response_hash['url']}"
 	
 	#add a user, test, update the user, test, get the user, test
 	def test_update_existing
+		#first add a user using create post (no id)
 		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
 		post '/person', req_body
 		response_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
 		assert_equal TEST_PERSON_URL, response_hash['url']
+		#now update the user
 		update_req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => 24})
 		url = response_hash['url']
-		puts "MAB test_update_existing url: #{url}"
 		post url, update_req_body #post '/person/prisci'	with JSON body
 		response_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
@@ -165,6 +173,32 @@ puts "response_hash['url']: #{response_hash['url']}"
 	def test_update_not_found
 		post '/person/ajbjrt', JSON.generate({"name" => "whatever", "age" => 77})
 		assert_equal 404, last_response.status
+	end
+	
+	def test_update_no_request_body
+		#first add a user using create post (no id)
+		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
+		post '/person', req_body
+		response_hash = JSON.parse(last_response.body)
+		assert_equal 200, last_response.status
+		assert_equal TEST_PERSON_URL, response_hash['url']
+		#now attempt to update the user but with no request body
+		url = response_hash['url']
+		post url
+		assert_equal 400, last_response.status
+	end
+
+	def test_update_malformed_request_body
+		#first add a user using create post (no id)
+		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
+		post '/person', req_body
+		response_hash = JSON.parse(last_response.body)
+		assert_equal 200, last_response.status
+		assert_equal TEST_PERSON_URL, response_hash['url']
+		#now attempt to update the user but with no request body
+		url = response_hash['url']
+		post url, "non-json string"
+		assert_equal 400, last_response.status
 	end
 	
 end
