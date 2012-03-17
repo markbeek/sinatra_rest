@@ -11,10 +11,12 @@ puts "starting person service"
 #use test data file by default
 DEFAULT_DATA_FILE = 'test/baseline_persons.yaml'
 
-#we may pass in a test data file,
-#which we will use,
-#or rake may pass in a file as part of its file list,
-#which we want to ignore
+#we run in test mode by default;
+#can pass in a different test file, or
+#to run in "production" mode,
+#pass in the production data file;
+#also must protect against rake passing in a file as part of its file list,
+#so we do a regex yaml test
 data_file = DEFAULT_DATA_FILE
 if ARGV[0] && ARGV[0].match(/yaml$/)
 	data_file = ARGV[0]
@@ -42,7 +44,7 @@ post '/person' do
 			person_dao.create(person_id, {:name => person_data["name"], :age => person_data['age']})
 			JSON.generate({"url" => "/person/#{person_id}"})
 		rescue => e
-			puts "MAB error message: #{e.message}"
+			puts "error message: #{e.message}"
 			status 400	#Bad Request
 		end
 	else
