@@ -35,7 +35,6 @@ class PersonServiceTest < Test::Unit::TestCase
 		Sinatra::Application
 	end
 
-=begin
 	def test_generate_person_id_short_name
 		person_name = 'Magg'	#shorter than 6
 		person_id = generate_person_id person_name
@@ -201,7 +200,7 @@ class PersonServiceTest < Test::Unit::TestCase
 		post url, "non-json string"
 		assert_equal 400, last_response.status
 	end
-=end
+
 	#use the known list (note this is a list of hashes
 	def test_persons_list
 		get '/persons'
