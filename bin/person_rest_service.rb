@@ -25,7 +25,7 @@ def generate_person_id(person_name)
 	(person_name && !person_name.empty?) ? person_name.downcase.gsub(/\s/, '').gsub(/\./,'').slice(0..5) : nil
 end
 
-#either seems to test out
+#either seems to test fine, but application/json is obviously the correct Content-Type
 before do
 	content_type "application/json"	#both browsers treat this as a download, have to open in separate application 
 	#content_type :txt	#this is rendered directly in the browser
@@ -92,6 +92,11 @@ delete '/person/:id' do
 	else
 		status 404
 	end
+end
+
+#list of persons
+get '/persons' do
+	JSON.generate(YamlDao.new(data_file).list)
 end
 
 puts "person service started"

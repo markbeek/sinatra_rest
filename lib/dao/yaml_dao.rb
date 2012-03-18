@@ -46,7 +46,15 @@ class YamlDao
 		else
 			0
 		end
-	end	
+	end
+
+	#return list of maps with id absorbed into the map this time
+	#{"id" => id, "name" => name, "age" => age}
+	def list
+		@data.keys.map do |key| 
+			{"id" => key, "name" => @data[key][:name], "age" => @data[key][:age]}
+		end
+	end
 	
 	private
 	

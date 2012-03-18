@@ -35,6 +35,7 @@ class PersonServiceTest < Test::Unit::TestCase
 		Sinatra::Application
 	end
 
+=begin
 	def test_generate_person_id_short_name
 		person_name = 'Magg'	#shorter than 6
 		person_id = generate_person_id person_name
@@ -199,6 +200,28 @@ class PersonServiceTest < Test::Unit::TestCase
 		url = response_hash['url']
 		post url, "non-json string"
 		assert_equal 400, last_response.status
+	end
+=end
+	#use the known list (note this is a list of hashes
+	def test_persons_list
+		get '/persons'
+		response_list = JSON.parse(last_response.body)
+		assert_equal 3, response_list.length
+		response_list.each do |hash|
+			assert_not_nil(hash["id"])
+			assert_not_nil(hash["name"])
+			assert_not_nil(hash["age"])
+			if (hash["id"] == 'cabbot')
+				assert_equal "Cindy Abbot", hash["name"]
+				assert_equal 21, hash["age"]
+			elsif (hash["id"] == 'msinclair')
+				assert_equal "Mandy Sinclair", hash["name"]
+				assert_equal 27, hash["age"]			
+			elsif (hash["id"] == 'gzarkon')
+				assert_equal "George Zarkon", hash["name"]
+				assert_equal 22, hash["age"]			
+			end
+		end
 	end
 	
 end
