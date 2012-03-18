@@ -62,6 +62,7 @@ get '/person/:id' do
 end
 
 #Update (request must include a JSON body)
+#technically, this could be a put
 post '/person/:id' do
 	req_body = request.body.read
 	if req_body
