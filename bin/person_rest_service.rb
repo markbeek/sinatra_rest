@@ -2,7 +2,7 @@
 #handle more error conditions: JSON object, but without name or age
 
 require 'sinatra'
-require 'json'
+require 'json/pure'
 require 'yaml'
 require_relative '../lib/dao/yaml_dao'
 

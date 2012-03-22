@@ -6,7 +6,7 @@
 require_relative "../bin/person_rest_service.rb"
 require 'test/unit'
 require 'rack/test'
-require 'json'
+require 'json/pure'
 require 'rest_client'
 
 DATA_FILE = 'test/baseline_persons.yaml'
