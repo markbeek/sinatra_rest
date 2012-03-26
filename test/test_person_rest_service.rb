@@ -37,6 +37,9 @@ class PersonServiceTest < Test::Unit::TestCase
 		Sinatra::Application
 	end
 
+#####################
+###test helper method
+#####################
 	def test_generate_person_id_short_name
 		person_name = 'Magg'	#shorter than 6
 		person_id = generate_person_id person_name
@@ -75,6 +78,10 @@ class PersonServiceTest < Test::Unit::TestCase
 		person_id = generate_person_id person_name
 		assert_nil person_id
 	end
+	
+#####################
+###test rest service
+#####################
 	
 	def test_get_existing
 		get '/person/cabbot'

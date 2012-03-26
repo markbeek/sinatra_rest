@@ -1,13 +1,13 @@
---- 
-cabbot: 
-  :name: Cindy Abbot
-  :age: 21
-msinclair: 
+---
+cabbot:
+  name: Cindy Abbot
+  age: 21
+msinclair:
   :name: Mandy Sinclair
   :age: 27
-gzarkon: 
+gzarkon:
   :name: George Zarkon
   :age: 22
-prisci: 
-  name: Priscilla Mayberry
-  age: 24
+mirand:
+  :name: Miranda Havenstock
+  :age: 38
