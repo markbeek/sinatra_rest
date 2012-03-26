@@ -7,9 +7,6 @@ require 'yaml'
 
 class YamlDao
 
-	#primarily for testing
-	attr_accessor :data
-
 	#data expected to be a hash of hashes, person_id => {person_data}
 	def initialize(file)
 		@file = file
