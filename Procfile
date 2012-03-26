@@ -1,0 +1,1 @@
+web: bundle exec ruby bin/person_rest_service.rb -p 9393

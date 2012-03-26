@@ -3,6 +3,8 @@
 #OR
 #ruby -I. test/test_person_rest_service.rb
 
+#NOTE: rack/test starts its own instance of the sinatra service; don't need to run it separately
+
 require_relative "../bin/person_rest_service.rb"
 require 'test/unit'
 require 'rack/test'

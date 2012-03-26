@@ -1,3 +1,13 @@
+#run locally:
+#for test:
+#ruby -I. bin/person_rest_service.rb
+#OR
+#bundle exec ruby bin/person_rest_service.rb -p 9393
+#will use test data file
+
+#for production:
+#ruby -I. bin/person_rest_service.rb data/persons.yaml
+
 #to do:
 #handle more error conditions: JSON object, but without name or age
 
@@ -25,11 +35,26 @@ def generate_person_id(person_name)
 	(person_name && !person_name.empty?) ? person_name.downcase.gsub(/\s/, '').gsub(/\./,'').slice(0..5) : nil
 end
 
+#browser verification filter
+before '/hello' do
+	content_type :txt
+end
+
 #either seems to test fine, but application/json is obviously the correct Content-Type
-before do
+before %r{/person} do
 	content_type "application/json"	#both browsers treat this as a download, have to open in separate application 
 	#content_type :txt	#this is rendered directly in the browser
 end
+####################
+###BROWSER VERIFICATION METHOD
+####################
+get '/hello' do
+	JSON.generate({"result" => "hello"})
+end
+
+####################
+###REST SERVICE
+####################
 
 #Create (request must include a JSON body)
 post '/person' do
