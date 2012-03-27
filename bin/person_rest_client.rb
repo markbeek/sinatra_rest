@@ -2,6 +2,10 @@
 #ruby -I. bin/person_rest_client.rb
 #(after starting person service)
 
+#for heroku, run with:
+#ruby -I. bin/person_rest_client.rb http://severe-sword-1427.herokuapp.com
+
+
 #this client will exercise the rest_client API, using
 
 #it expects a real instance of the rest service to be running
@@ -11,12 +15,14 @@
 require 'rest_client'
 require 'json/pure'
 
-DEFAULT_HOST = "http://localhost:9393"
+DEFAULT_HOST = "http://localhost:4567"
 
 host = DEFAULT_HOST
 if ARGV[0] && ARGV[0].match(/http/)
 	host = ARGV[0]
 end
+
+puts "host: #{host}"
 
 #sanity check of the non-rest request
 response = RestClient.get(host + "/hello")
@@ -32,6 +38,7 @@ puts "/person/cabbot response: #{response}"
 
 puts
 
+=begin
 #test person creation with post raw payload
 response = RestClient.post(
 	(host + "/person"),
@@ -40,3 +47,4 @@ response = RestClient.post(
 ) 
 puts "/person response code: #{response.code}"
 puts "/person response: #{response}"
+=end

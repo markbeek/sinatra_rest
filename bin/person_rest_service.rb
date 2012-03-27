@@ -2,7 +2,7 @@
 #for test:
 #ruby -I. bin/person_rest_service.rb
 #OR
-#bundle exec ruby bin/person_rest_service.rb -p 9393
+#bundle exec ruby bin/person_rest_service.rb -p $PORT
 #will use test data file
 
 #for production:
