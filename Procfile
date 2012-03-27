@@ -1,1 +1,1 @@
-web: bundle exec ruby bin/person_rest_service.rb -p $PORT
+web: bundle exec ruby bin/person_rest_service.rb data/persons.yaml -p $PORT
