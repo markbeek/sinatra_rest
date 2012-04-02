@@ -3,18 +3,13 @@
 #no heed to efficiency,concurrency,etc
 #reads from and writes to yaml file on each call
 
-require 'yaml'
+require 'mongo'
 
-class YamlDao
+class MongoDao
 
-	#data expected to be a hash of hashes, person_id => {person_data}
-	def initialize(file)
-		@file = file
-		@data = nil
-		File.open(@file) do |f|
-			@data = YAML.load(f)
-		end
-		@data ||= {}	
+	def initialize(con,persons)
+		@con = con
+		@persons = persons
 	end
 
 	def create(person_id,person_info)	#string,hash
