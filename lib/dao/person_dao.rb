@@ -7,8 +7,9 @@ require 'mongo'
 
 class MongoDao
 
-	def initialize(con,persons)
+	def initialize(con,db,persons)
 		@con = con
+		@db = db
 		@persons = persons
 	end
 
