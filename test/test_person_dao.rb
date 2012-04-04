@@ -4,16 +4,17 @@
 #from root directory, run with
 #rake test
 #OR
-#ruby -I. test/test_mongo_dao.rb
+#ruby -I. test/test_person_dao.rb
 
 require 'test/unit'
 require 'mongo'
-require_relative '../lib/dao/mongo_dao'
+require_relative '../lib/dao/person_dao'
 
 #setup test db
 CON = Mongo::Connection.new
 DB = CON['test']
 PERSONS = DB['persons']
+PERSON_DAO = PersonDao.new(PERSONS)
 
 #known person
 KNOWN_PERSON_ID = 'msinclair'
@@ -22,59 +23,46 @@ KNOWN_AGE = 27
 
 class MongoDaoTest < Test::Unit::TestCase
 
+	#create a known person for testing retrieve, update, delete
 	def setup
+		@test_person_id = PERSONS.insert(
+			{"person_id" => KNOWN_PERSON_ID, "person_name" => KNOWN_PERSON_NAME, "age" => KNOWN_AGE}
+		)
+		assert_equal 1, PERSONS.count()
 	end
 	
 	#clean collection
 	def teardown
-		PERSONS.remove({"person_id" => KNOWN_PERSON_ID})
+		PERSONS.remove()
+		assert_equal 0, PERSONS.count()
 	end
 
 
-	def test_create_person
-		@test_person_id = PERSONS.insert(
-			{"person_id" => KNOWN_PERSON_ID, "person_name" => KNOWN_PERSON_NAME, "age" => KNOWN_AGE}
+	def test_create
+		person = PERSON_DAO.create(
+			{"person_id" => "jjam", "person_name" => "Janna Jamme", "age" => 18}
 		)
-		puts "reached here"
-		#@yaml_dao.create(new_person_id,person_info)
-		#person = @yaml_dao.retrieve(new_person_id)
-		#assert_equal(new_person_name, person[:name])
-		#assert_equal(new_person_age, person[:age])
-	end
-
-
-
-=begin
-	def test_create_person_sync_with_file
-		new_person_id = 'ndancin'
-		new_person_name = "Nora Dancin"
-		new_person_age = 33
-		person_info = {
-			name: new_person_name,
-			age: new_person_age
-		}
-		@yaml_dao.create(new_person_id,person_info)
-		#check via file
-		data = {}
-		File.open(DATA_FILE) do |f|
-			data = YAML.load(f)
-		end
-		person = data[new_person_id]
-		assert_equal(new_person_name, person[:name])
-		assert_equal(new_person_age, person[:age])
-		#check via new dao
-		yaml_dao2 = YamlDao.new(DATA_FILE)
-		person = yaml_dao2.retrieve(new_person_id)
-		assert_equal(new_person_name, person[:name])
-		assert_equal(new_person_age, person[:age])
+		assert_equal 2, PERSON_DAO.count()
+		assert_equal "jjam", person['person_id']
+		assert (person[:_id].is_a? BSON::ObjectId)
 	end
 	
-	def test_retrieve_person
-		person = @yaml_dao.retrieve(KNOWN_PERSON_ID)
+	def test_retrieve
+		person = PERSON_DAO.retrieve(KNOWN_PERSON_ID)
 		assert_not_nil(person)
-		assert_equal(KNOWN_PERSON_NAME, person[:name])
-		assert_equal(KNOWN_AGE, person[:age])
+		assert_equal(KNOWN_PERSON_ID, person["person_id"])
+		assert_equal(KNOWN_PERSON_NAME, person["person_name"])
+		assert_equal(KNOWN_AGE, person["age"])
+		assert (person["_id"].is_a? BSON::ObjectId)
 	end
+
+	#asking for a person not in the collection
+	def test_retrieve_nil
+		person = PERSON_DAO.retrieve("non_existent_person")
+		assert_nil(person)
+	end
+	
+=begin
 	
 	def test_update_person
 		known_person_name = "Mandy Sinclair-Carter"

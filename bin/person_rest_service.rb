@@ -13,11 +13,7 @@
 
 require 'sinatra'
 require 'json/pure'
-require 'yaml'
-require_relative '../lib/dao/yaml_dao'
-
-#use test data file by default
-DEFAULT_DATA_FILE = 'test/baseline_persons.yaml'
+require_relative '../lib/dao/person_dao'
 
 #we run in test mode by default;
 #can pass in a different test file, or
@@ -76,9 +72,8 @@ post '/person' do
 end
 
 #Retrieve
-get '/person/:id' do
-	person_dao = YamlDao.new(data_file)
-	person_data = person_dao.retrieve(params[:id])
+get '/person/:person_id' do
+	person_data = person_dao.retrieve(params[:person_id])
 	if person_data
 		person_json = JSON.generate(person_data)
 	else
@@ -88,13 +83,13 @@ end
 
 #Update (request must include a JSON body)
 #technically, this could be a put
-post '/person/:id' do
+post '/person/:person_id' do
 	req_body = request.body.read
 	if req_body
 		begin
 			person_data = JSON.parse(req_body)
 			person_dao = YamlDao.new(data_file)
-			result = person_dao.update(params[:id], person_data)
+			result = person_dao.update(params[:person_id], person_data)
 			if result == 1
 				JSON.generate({"updated" => result})
 			else
