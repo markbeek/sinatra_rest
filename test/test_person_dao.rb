@@ -26,7 +26,7 @@ class MongoDaoTest < Test::Unit::TestCase
 	#create a known person for testing retrieve, update, delete
 	def setup
 		@test_person_id = PERSONS.insert(
-			{"person_id" => KNOWN_PERSON_ID, "person_name" => KNOWN_PERSON_NAME, "age" => KNOWN_AGE}
+			{"person_id" => KNOWN_PERSON_ID, "name" => KNOWN_PERSON_NAME, "age" => KNOWN_AGE}
 		)
 		assert_equal 1, PERSONS.count()
 	end
@@ -40,10 +40,11 @@ class MongoDaoTest < Test::Unit::TestCase
 
 	def test_create
 		person = PERSON_DAO.create(
-			{"person_id" => "jjam", "person_name" => "Janna Jamme", "age" => 18}
+			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
 		)
-		assert_equal 2, PERSON_DAO.count()
+		assert_equal 2, PERSONS.count()
 		assert_equal "jjam", person['person_id']
+		assert_equal "/person/jjam", person['url']
 		assert (person[:_id].is_a? BSON::ObjectId)
 	end
 	
@@ -51,7 +52,7 @@ class MongoDaoTest < Test::Unit::TestCase
 		person = PERSON_DAO.retrieve(KNOWN_PERSON_ID)
 		assert_not_nil(person)
 		assert_equal(KNOWN_PERSON_ID, person["person_id"])
-		assert_equal(KNOWN_PERSON_NAME, person["person_name"])
+		assert_equal(KNOWN_PERSON_NAME, person["name"])
 		assert_equal(KNOWN_AGE, person["age"])
 		assert (person["_id"].is_a? BSON::ObjectId)
 	end
@@ -62,94 +63,41 @@ class MongoDaoTest < Test::Unit::TestCase
 		assert_nil(person)
 	end
 	
-=begin
-	
 	def test_update_person
-		known_person_name = "Mandy Sinclair-Carter"
-		known_person_age = 27
 		updated_person_info = {
-			name: known_person_name,
-			age: known_person_age
+			"name" => "Mandy Married",
+			"age" => 28
 		}
-		@yaml_dao.update(KNOWN_PERSON_ID,updated_person_info)
-		person = @yaml_dao.retrieve(KNOWN_PERSON_ID)
-		assert_equal(known_person_name, person[:name])
-		assert_equal(known_person_age, person[:age])
+		updated_person = PERSON_DAO.update(KNOWN_PERSON_ID,updated_person_info)
+		assert_equal("Mandy Married", updated_person['name'])
+		assert_equal(28, updated_person['age'])
+		assert_equal("/person/#{KNOWN_PERSON_ID}", updated_person['url'])
+		assert (updated_person["_id"].is_a? BSON::ObjectId)
 	end
 
-	def test_update_person_sync_with_file
-		known_person_name = "Mandy Sinclair-Carter"
-		known_person_age = 27
+	def test_update_nonexistent_person
 		updated_person_info = {
-			name: known_person_name,
-			age: known_person_age
+			"name" => "anything",
+			"age" => 98
 		}
-		@yaml_dao.update(KNOWN_PERSON_ID,updated_person_info)
-		#check via file
-		data = {}
-		File.open(DATA_FILE) do |f|
-			data = YAML.load(f)
-		end
-		person = data[KNOWN_PERSON_ID]
-		assert_equal(known_person_name, person[:name])
-		assert_equal(known_person_age, person[:age])
-		#check via new dao
-		yaml_dao2 = YamlDao.new(DATA_FILE)
-		person = yaml_dao2.retrieve(KNOWN_PERSON_ID)
-		assert_equal(known_person_name, person[:name])
-		assert_equal(known_person_age, person[:age])
+		assert_raise (RuntimeError) {PERSON_DAO.update("nosuchperson",updated_person_info)}
 	end
 	
 	def test_delete_person
 		#sanity check, make sure person is there first
-		person = @yaml_dao.retrieve(KNOWN_PERSON_ID)
+		person = PERSON_DAO.retrieve(KNOWN_PERSON_ID)
 		assert_not_nil(person)
-		assert_equal(KNOWN_PERSON_NAME, person[:name])
-		assert_equal(KNOWN_AGE, person[:age])
+		assert_equal(KNOWN_PERSON_NAME, person['name'])
+		assert_equal(KNOWN_AGE, person['age'])
 		#now test delete
-		result = @yaml_dao.delete(KNOWN_PERSON_ID)
-		assert_equal 1, result
-		assert_nil(@yaml_dao.retrieve(KNOWN_PERSON_ID))
+		PERSON_DAO.delete(KNOWN_PERSON_ID)
+		assert_equal(0,PERSONS.count())
+		assert_nil(PERSON_DAO.retrieve(KNOWN_PERSON_ID))
 	end
 
-	def test_delete_person_sync_with_file
-		#sanity check, make sure person is there first
-		person = @yaml_dao.retrieve(KNOWN_PERSON_ID)
-		assert_not_nil(person)
-		assert_equal(KNOWN_PERSON_NAME, person[:name])
-		assert_equal(KNOWN_AGE, person[:age])
-	@yaml_dao.delete(KNOWN_PERSON_ID)
-		#check via file
-		data = {}
-		File.open(DATA_FILE) do |f|
-			data = YAML.load(f)
-		end
-		assert_nil(data[KNOWN_PERSON_ID])
-		#check via new dao
-		yaml_dao2 = YamlDao.new(DATA_FILE)
-		assert_nil(yaml_dao2.retrieve(KNOWN_PERSON_ID))
+	def test_delete_nonexistent_person
+		PERSON_DAO.delete("nonperson")
+		assert_equal(1,PERSONS.count())
 	end
-
-	#just testing the default entries in the yaml test file
-	def test_list
-		person_data_list = @yaml_dao.list
-		assert_equal 3, person_data_list.length
-		person_data_list.each do |hash|
-			assert_not_nil(hash["id"])
-			assert_not_nil(hash["name"])
-			assert_not_nil(hash["age"])
-			if (hash["id"] == 'cabbot')
-				assert_equal "Cindy Abbot", hash["name"]
-				assert_equal 21, hash["age"]
-			elsif (hash["id"] == 'msinclair')
-				assert_equal "Mandy Sinclair", hash["name"]
-				assert_equal 27, hash["age"]			
-			elsif (hash["id"] == 'gzarkon')
-				assert_equal "George Zarkon", hash["name"]
-				assert_equal 22, hash["age"]			
-			end
-		end
-	end
-=end
 	
 end

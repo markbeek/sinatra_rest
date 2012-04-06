@@ -25,29 +25,30 @@ class PersonDao
 	def retrieve(person_id)
 		@persons.find_one({"person_id" => person_id})
 	end
+	
+	#here we are updating by replacement,
+	#ensuring that we have a url if the doc doesn't provide one;
+	#if there is no such person to update, we raise an exception
+	def update(person_id, updated_person_info)
+		person = @persons.find_one({"person_id" => person_id})
+		raise ("no such person: #{person_id}") if person.nil?
+		person['name'] = updated_person_info['name']
+		person['age'] = updated_person_info['age']
+		person['url'] = PATH + person_id
+		puts "url: #{updated_person_info['url']}"
+		@persons.update({"person_id" => person_id}, updated_person_info, :safe => true)
+		person
+	end
 
+	#ruby mongo driver remove method apparently always returns true,
+	#so we can get no additional information from the return value
+	def delete(person_id)
+		@persons.remove({"person_id" => person_id})
+	end
+	
 =begin
-	#return 1 on successful update, else 0
-	def update(id,updated_person_info)
-		if @data[person_id]
-			@data[person_id] = updated_person_info
-			sync
-			1
-		else
-			0
-		end
-	end
 
-	#return 1 if a deletion actually occurred, 0 if nothing to delete
-	def delete(id)
-		if @data[person_id]
-			@data.delete(person_id)
-			sync
-			1
-		else
-			0
-		end
-	end
+
 
 	#return list of maps with id absorbed into the map this time
 	#{"id" => id, "name" => name, "age" => age}
