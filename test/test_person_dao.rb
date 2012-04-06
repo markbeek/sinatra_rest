@@ -100,4 +100,36 @@ class MongoDaoTest < Test::Unit::TestCase
 		assert_equal(1,PERSONS.count())
 	end
 	
+	def test_list
+		person_list = PERSON_DAO.list
+		assert_equal 1, person_list.length
+		#add a couple more
+		PERSON_DAO.create(
+			{"person_id" => "test1", "name" => "Test One", "age" => 1}
+		)
+		PERSON_DAO.create(
+			{"person_id" => "test2", "name" => "Test Two", "age" => 2}
+		)
+		person_list = PERSON_DAO.list
+		assert_equal 3, person_list.length
+		person_list.each do |person|
+			assert_not_nil(person["person_id"])
+			assert_not_nil(person["name"])
+			assert_not_nil(person["age"])
+			if (person["id"] == KNOWN_PERSON_ID)
+				assert_equal KNOWN_PERSON_NAME, person["name"]
+				assert_equal KNOWN_AGE, person["age"]
+			#these two should have URLs because they were inserted by the DAO
+			elsif (person["id"] == 'test1')
+				assert_equal "Test One", person["name"]
+				assert_equal 1, person["age"]
+				assert_equal "/person/test1", person["url"]				
+			elsif (person["id"] == 'test2')
+				assert_equal "Test Two", person["name"]
+				assert_equal 2, person["age"]
+				assert_equal "/person/test2", person["url"]
+			end
+		end
+	end
+	
 end

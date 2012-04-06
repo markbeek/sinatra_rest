@@ -16,7 +16,7 @@ class PersonDao
 	#input: hash of person information, representing mongo JSON object
 	#return: hash of object, including mongo-generated _id and URL
 	def create(person_info)
-		person_info['url'] = PATH + person_info["person_id"]
+		person_info["url"] = PATH + person_info["person_id"]
 		@persons.insert(person_info)
 		person_info
 	end
@@ -35,7 +35,6 @@ class PersonDao
 		person['name'] = updated_person_info['name']
 		person['age'] = updated_person_info['age']
 		person['url'] = PATH + person_id
-		puts "url: #{updated_person_info['url']}"
 		@persons.update({"person_id" => person_id}, updated_person_info, :safe => true)
 		person
 	end
@@ -45,19 +44,14 @@ class PersonDao
 	def delete(person_id)
 		@persons.remove({"person_id" => person_id})
 	end
-	
-=begin
 
-
-
-	#return list of maps with id absorbed into the map this time
-	#{"id" => id, "name" => name, "age" => age}
+	#return list all persons
 	def list
-		@data.keys.map do |key| 
-			{"id" => key, "name" => @data[key][:name], "age" => @data[key][:age]}
+		persons = []
+		@persons.find().each do |person|
+			persons << person
 		end
+		persons
 	end
 
-=end	
-	
 end
