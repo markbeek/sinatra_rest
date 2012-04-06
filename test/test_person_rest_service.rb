@@ -146,6 +146,7 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal 200, last_response.status
 		puts "COUNT: #{PERSONS.count()}"
 		assert_equal 0, PERSONS.count()
+		puts "COUNT  again: #{PERSONS.count()}"
 	end
 
 	
@@ -159,61 +160,39 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal 0, PERSONS.count()
 	end	
 	
-=begin
-
-	def test_update_not_found
-		post '/person/ajbjrt', JSON.generate({"name" => "whatever", "age" => 77})
-		assert_equal 404, last_response.status
-	end
-	
-	def test_update_no_request_body
-		#first add a user using create post (no id)
-		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
-		post '/person', req_body
-		response_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_URL, response_hash['url']
-		#now attempt to update the user but with no request body
-		url = response_hash['url']
-		post url
-		assert_equal 400, last_response.status
-	end
-
-	def test_update_malformed_request_body
-		#first add a user using create post (no id)
-		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
-		post '/person', req_body
-		response_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_URL, response_hash['url']
-		#now attempt to update the user but with no request body
-		url = response_hash['url']
-		post url, "non-json string"
-		assert_equal 400, last_response.status
-	end
-
-	#use the known list (note this is a list of hashes
 	def test_persons_list
 		get '/persons'
-		response_list = JSON.parse(last_response.body)
-		assert_equal 3, response_list.length
-		response_list.each do |hash|
-			assert_not_nil(hash["id"])
-			assert_not_nil(hash["name"])
-			assert_not_nil(hash["age"])
-			if (hash["id"] == 'cabbot')
-				assert_equal "Cindy Abbot", hash["name"]
-				assert_equal 21, hash["age"]
-			elsif (hash["id"] == 'msinclair')
-				assert_equal "Mandy Sinclair", hash["name"]
-				assert_equal 27, hash["age"]			
-			elsif (hash["id"] == 'gzarkon')
-				assert_equal "George Zarkon", hash["name"]
-				assert_equal 22, hash["age"]			
+		persons = JSON.parse(last_response.body)
+		assert_equal 1, persons.length
+		#add a couple more and test
+		req_body = JSON.generate({"person_id" => TEST_PERSON_ID, "name" => TEST_NAME, "age" => TEST_AGE})
+		post '/person', req_body
+		req_body = JSON.generate({"person_id" => "test2", "name" => "Test Two", "age" => 2})
+		post '/person', req_body
+		get '/persons'
+		persons = JSON.parse(last_response.body)
+		assert_equal 3, persons.length
+		puts "LIST COUNT: #{PERSONS.count()}"
+		persons.each do |person|
+			assert_not_nil(person["person_id"])
+			assert_not_nil(person["name"])
+			assert_not_nil(person["age"])
+			assert_not_nil(person["url"])
+			if (person["person_id"] == KNOWN_PERSON_ID)
+				assert_equal KNOWN_NAME, person["name"]
+				assert_equal KNOWN_AGE, person["age"]
+				assert_equal KNOWN_URL, person["url"]
+			#these two should have URLs because they were inserted by the DAO
+			elsif (person["person_id"] == TEST_PERSON_ID)
+				assert_equal TEST_NAME, person["name"]
+				assert_equal TEST_AGE, person["age"]
+				assert_equal TEST_URL, person["url"]				
+			elsif (person['person_id'] == 'test2')
+				assert_equal "Test Two", person["name"]
+				assert_equal 2, person["age"]
+				assert_equal "/person/test2", person["url"]
 			end
 		end
 	end
-	
-=end
 	
 end

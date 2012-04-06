@@ -116,15 +116,15 @@ class MongoDaoTest < Test::Unit::TestCase
 			assert_not_nil(person["person_id"])
 			assert_not_nil(person["name"])
 			assert_not_nil(person["age"])
-			if (person["id"] == KNOWN_PERSON_ID)
+			if (person["person_id"] == KNOWN_PERSON_ID)
 				assert_equal KNOWN_PERSON_NAME, person["name"]
 				assert_equal KNOWN_AGE, person["age"]
 			#these two should have URLs because they were inserted by the DAO
-			elsif (person["id"] == 'test1')
+			elsif (person["person_id"] == 'test1')
 				assert_equal "Test One", person["name"]
 				assert_equal 1, person["age"]
 				assert_equal "/person/test1", person["url"]				
-			elsif (person["id"] == 'test2')
+			elsif (person["person_id"] == 'test2')
 				assert_equal "Test Two", person["name"]
 				assert_equal 2, person["age"]
 				assert_equal "/person/test2", person["url"]

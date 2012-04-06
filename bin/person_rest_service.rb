@@ -90,9 +90,10 @@ delete '/person/:person_id' do
 	person_dao.delete(params[:person_id])
 end
 
-#list of persons
+#list of persons (each of which is a hash)
 get '/persons' do
-	JSON.generate(YamlDao.new(data_file).list)
+	persons = person_dao.list
+	JSON.generate(persons)
 end
 
 ########################
