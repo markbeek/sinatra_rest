@@ -21,7 +21,8 @@ class PersonDao
 		person_info
 	end
 	
-	#person_id is the business key of the collection
+	#person_id is the business key of the collection;
+	#returns a person hash, or nil if no person is found
 	def retrieve(person_id)
 		@persons.find_one({"person_id" => person_id})
 	end

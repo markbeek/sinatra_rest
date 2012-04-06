@@ -11,10 +11,22 @@ require 'rack/test'
 require 'json/pure'
 require 'rest_client'
 
-DATA_FILE = 'test/baseline_persons.yaml'
-TEST_PERSON_NAME = "Priscilla Mayberry"
-TEST_PERSON_AGE = 23
-TEST_PERSON_URL = "/person/prisci"
+#same db that will be used by rest_service in test mode
+CON = Mongo::Connection.new
+DB = CON['test']
+PERSONS = DB['persons']
+
+#known person
+KNOWN_PERSON_ID = 'msinclair'
+KNOWN_NAME = 'Mandy Sinclair'
+KNOWN_AGE = 27
+KNOWN_URL = "/person/msinclair"
+
+#test person
+TEST_PERSON_ID = 'test1'
+TEST_NAME = 'Test One'
+TEST_AGE = 1
+TEST_URL = "/person/test1"
 
 class PersonServiceTest < Test::Unit::TestCase
 
@@ -22,162 +34,132 @@ class PersonServiceTest < Test::Unit::TestCase
 	
 	#write a clean a file with known data before each test
 	def setup
-		puts "setting up baseline file"
-		system("ruby -I. test/baseline_person_resource_generator.rb")
-		puts "baseline file is set up"
+		PERSONS.insert({
+			"person_id" => KNOWN_PERSON_ID, 
+			"name" => KNOWN_NAME, 
+			"age" => KNOWN_AGE,
+			"url" => KNOWN_URL
+		})
+		assert_equal 1, PERSONS.count()
 	end
 	
 	#delete file
 	def teardown
-		num_files_deleted = File.delete(DATA_FILE)
-		assert_equal(1,num_files_deleted)
+		PERSONS.remove()
+		assert_equal 0, PERSONS.count()
 	end
 	
 	def app
 		Sinatra::Application
 	end
 
-#####################
-###test helper method
-#####################
-	def test_generate_person_id_short_name
-		person_name = 'Magg'	#shorter than 6
-		person_id = generate_person_id person_name
-		assert_equal person_name.downcase, person_id
-	end
-
-	def test_generate_person_id_six_letter_name
-		person_name = 'Mi Sole'	#equals 6 after strip
-		person_id = generate_person_id person_name
-		assert_equal "misole", person_id
-		person_name = ' Mi Sole '	#equals 6 after strip
-		person_id = generate_person_id person_name
-		assert_equal "misole", person_id
-		person_name = 'MiSole'	#equals 6 after strip
-		person_id = generate_person_id person_name
-		assert_equal "misole", person_id		
-	end
-
-	def test_generate_person_id_long_name
-		person_name = 'Mel D. Masterson'
-		person_id = generate_person_id person_name
-		assert_equal "meldma", person_id
-		person_name = ' Mel D. Masterson '
-		person_id = generate_person_id person_name
-		assert_equal "meldma", person_id
-		person_name = 'Mel D. Masterson'
-		person_id = generate_person_id person_name
-		assert_equal "meldma", person_id		
-	end
-
-	def test_generate_person_id_no_name
-		person_name = nil
-		person_id = generate_person_id person_name
-		assert_nil person_id
-		person_name = ''
-		person_id = generate_person_id person_name
-		assert_nil person_id
-	end
-	
-#####################
-###test rest service
-#####################
-	
 	def test_get_existing
-		get '/person/cabbot'
+		get "/person/#{KNOWN_PERSON_ID}"
 		person_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
-		assert_equal "Cindy Abbot", person_hash['name']
-		assert_equal 21, person_hash['age']
+		assert_equal KNOWN_PERSON_ID, person_hash['person_id']
+		assert_equal KNOWN_NAME, person_hash['name']
+		assert_equal KNOWN_AGE, person_hash['age']
+		assert_equal KNOWN_URL, person_hash['url']
 	end
 
 	def test_get_not_found
 		get 'person/obo'
 		assert_equal 404, last_response.status
 	end
-	
-	def test_post
-		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
+
+	def test_post_create
+		req_body = JSON.generate({"person_id" => TEST_PERSON_ID, "name" => TEST_NAME, "age" => TEST_AGE})
 		post '/person', req_body
 		response_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_URL, response_hash['url']
-		#just for kicks, use the url for a get
+		assert_equal TEST_PERSON_ID, response_hash['person_id']
+		assert_equal TEST_NAME, response_hash['name']
+		assert_equal TEST_AGE, response_hash['age']
+		assert_equal TEST_URL, response_hash['url']
+		#just for kicks, test the url for a get
 		get response_hash['url']
-		person_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_NAME, person_hash['name']
-		assert_equal TEST_PERSON_AGE, person_hash['age']	
-	end
+		assert_equal TEST_PERSON_ID, response_hash['person_id']
+		assert_equal TEST_NAME, response_hash['name']
+		assert_equal TEST_AGE, response_hash['age']
+		assert_equal TEST_URL, response_hash['url']	
+	end	
 
-	def test_post_no_request_body
+	def test_post_create_no_request_body
 		post '/person'
 		assert_equal 400, last_response.status
 	end
 
-	def test_post_malformed_request_body
+	def test_post_create_malformed_request_body
 		post '/person', "regular string"
 		assert_equal 400, last_response.status
 	end
+
+	def test_post_create_incomplete_person
+		incomplete_req_body = JSON.generate({"person_id" => TEST_PERSON_ID, "age" => TEST_AGE})
+		post '/person', incomplete_req_body
+		assert_equal 400, last_response.status		
+	end	
 	
-	#add a person and test, then delete and test
-	#should return 1 on successful delete
-	def test_delete_existing
-		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
-		post '/person', req_body
+	def test_post_create_invalid_age
+		invalid_req_body = JSON.generate({"person_id" => TEST_PERSON_ID, "name" => TEST_NAME, "age" => "a"})
+		post '/person', invalid_req_body
+		assert_equal 400, last_response.status		
+	end	
+	
+	def test_post_update_existing
+		update_req_body = JSON.generate({"name" => TEST_NAME, "age" => TEST_AGE})
+		post "/person/#{KNOWN_PERSON_ID}", update_req_body
 		response_hash = JSON.parse(last_response.body)
 		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_URL, response_hash['url']
-		delete response_hash['url'] #delete '/person/prisci'
-		response_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status
-		assert_equal 1,response_hash["deleted"]
+		assert_equal KNOWN_PERSON_ID, response_hash['person_id']
+		assert_equal TEST_NAME, response_hash['name']
+		assert_equal TEST_AGE, response_hash['age']
+		assert_equal KNOWN_URL, response_hash['url']
+		#test the url for a get
+		get response_hash['url']
+		assert_equal KNOWN_PERSON_ID, response_hash['person_id']
+		assert_equal TEST_NAME, response_hash['name']
+		assert_equal TEST_AGE, response_hash['age']
+		assert_equal KNOWN_URL, response_hash['url']
 	end
 
-	def test_delete_not_found
-		delete '/person/ajbjrt'
-		assert_equal 404, last_response.status
+	def test_post_update_no_request_body
+		post "/person/#{KNOWN_PERSON_ID}"
+		assert_equal 400, last_response.status
 	end
 
-	#add a person and test, then delete and test, then delete again
-	#should return 1 on first, 404 on second
-	def test_delete_repeated
-		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
-		post '/person', req_body
-		response_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_URL, response_hash['url']
-		url = response_hash['url']
-		delete url #delete '/person/prisci'
-		response_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status		
-		assert_equal 1,response_hash["deleted"]
-		delete url #delete '/person/prisci'
-		assert_equal 404, last_response.status
+	def test_post_update_malformed_request_body
+		post "/person/#{KNOWN_PERSON_ID}", "regular string"
+		assert_equal 400, last_response.status
 	end
+
+	def test_post_update_incomplete_person
+		incomplete_req_body = JSON.generate({"person_id" => TEST_PERSON_ID})
+		post "/person/#{KNOWN_PERSON_ID}", incomplete_req_body
+		assert_equal 400, last_response.status		
+	end	
 	
-	#add a user, test, update the user, test, get the user, test
-	def test_update_existing
-		#first add a user using create post (no id)
-		req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => TEST_PERSON_AGE})
-		post '/person', req_body
-		response_hash = JSON.parse(last_response.body)
+	def test_delete
+		assert_equal 1, PERSONS.count()
+		delete "/person/#{KNOWN_PERSON_ID}"
 		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_URL, response_hash['url']
-		#now update the user
-		update_req_body = JSON.generate({"name" => TEST_PERSON_NAME, "age" => 24})
-		url = response_hash['url']
-		post url, update_req_body #post '/person/prisci'	with JSON body
-		response_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status
-		assert_equal 1, response_hash['updated']
-		#now get the updated user and make sure the update has taken hold
-		get url	#get 'person/prisci'
-		response_hash = JSON.parse(last_response.body)
-		assert_equal 200, last_response.status
-		assert_equal TEST_PERSON_NAME, response_hash['name']
-		assert_equal 24, response_hash['age']
+		puts "COUNT: #{PERSONS.count()}"
+		assert_equal 0, PERSONS.count()
 	end
+
+	
+	def test_delete_repeat
+		assert_equal 1, PERSONS.count()
+		delete "/person/#{KNOWN_PERSON_ID}"
+		assert_equal 200, last_response.status
+		assert_equal 0, PERSONS.count()
+		delete "/person/#{KNOWN_PERSON_ID}"
+		assert_equal 200, last_response.status
+		assert_equal 0, PERSONS.count()
+	end	
+	
+=begin
 
 	def test_update_not_found
 		post '/person/ajbjrt', JSON.generate({"name" => "whatever", "age" => 77})
@@ -231,5 +213,7 @@ class PersonServiceTest < Test::Unit::TestCase
 			end
 		end
 	end
+	
+=end
 	
 end
