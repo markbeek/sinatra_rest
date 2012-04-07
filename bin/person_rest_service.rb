@@ -1,10 +1,10 @@
 #run locally:
-#ruby -I. bin/person_rest_service.rb
+#ruby -I. bin/person_rest_service.rb prod
 #OR
-#bundle exec ruby bin/person_rest_service.rb prod -p $PORT
+#bundle exec -I. ruby bin/person_rest_service.rb prod
 
-#for testing, using a different db:
-#ruby -I. bin/person_rest_service.rb TEST
+#for testing, leave out prod:
+#ruby -I. bin/person_rest_service.rb prod
 
 require 'sinatra'
 require 'json/pure'

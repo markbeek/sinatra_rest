@@ -1,8 +1,11 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    bson (1.4.0)
     json_pure (1.6.5)
     mime-types (1.18)
+    mongo (1.4.0)
+      bson (= 1.4.0)
     rack (1.4.1)
     rack-protection (1.2.0)
       rack
@@ -22,6 +25,7 @@ PLATFORMS
 
 DEPENDENCIES
   json_pure
+  mongo
   rack-test
   rake
   rest-client
