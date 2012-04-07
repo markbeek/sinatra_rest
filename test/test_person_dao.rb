@@ -14,6 +14,7 @@ require_relative '../lib/dao/person_dao'
 CON = Mongo::Connection.new
 DB = CON['test']
 PERSONS = DB['persons']
+PERSONS.create_index("person_id", :unique => true)
 PERSON_DAO = PersonDao.new(PERSONS)
 
 #known person
@@ -38,6 +39,23 @@ class MongoDaoTest < Test::Unit::TestCase
 	end
 
 
+=begin
+	def test_index_info
+
+		PERSONS.drop_indexes;
+		puts "index information before adding index: #{PERSONS.index_information}"
+		puts
+		puts "explain before adding index: #{PERSONS.find({'person_id' => 'aaaa'}).explain}"
+		puts
+		
+		PERSONS.create_index("person_id", :unique => true)
+		
+		puts "index information after adding index: #{PERSONS.index_information}"
+		puts
+		puts "explain after adding index: #{PERSONS.find({'person_id' => 'aaaa'}).explain}"
+	end
+=end
+	
 	def test_create
 		person = PERSON_DAO.create(
 			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
@@ -47,7 +65,81 @@ class MongoDaoTest < Test::Unit::TestCase
 		assert_equal "/person/jjam", person['url']
 		assert (person[:_id].is_a? BSON::ObjectId)
 	end
+
+	#assuming there's an index on person_id, we shouldn't be able
+	#to create the same person twice:
+	#correct, but the _id returned from these non-insertions is NOT
+	#the same as the existing _id in the DB; the driver increments it
+	#anyway, which could lead to serious problems with identifying a entity;
+	#the db record doesn't change, but you're led to believe it has a new index
+	def test_create_repeat
+		person = PERSON_DAO.create(
+			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
+		)
+		PERSONS.find().each do |person|
+			p person
+		end
+		puts
+		puts
+		
+		assert_equal 2, PERSONS.count()
+		assert_equal "jjam", person['person_id']
+		assert_equal "/person/jjam", person['url']
+		assert (person[:_id].is_a? BSON::ObjectId)
+		id = person[:_id]
+		person2 = PERSON_DAO.create(
+			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
+		)
+		p person2[:_id]
+		assert_equal 2, PERSONS.count() #still 2
+		assert (person2[:_id].is_a? BSON::ObjectId)
+		id2 = person2[:_id]
+		#assert_equal(id,id2)	#this is not true, they increment, even though
+		#the record in the db remains the same!!!
+
+		person3 = PERSON_DAO.create(
+			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
+		)
+		p person3[:_id]
+		person4 = PERSON_DAO.create(
+			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
+		)
+		p person4[:_id]
+		person5 = PERSON_DAO.create(
+			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
+		)
+		p person5[:_id]
+		puts
+		
+		assert_equal 2, PERSONS.count() #still 2	
+
+		#same as the first read
+		PERSONS.find().each do |person|
+			p person
+		end
+		puts
+	end
 	
+=begin
+	
+#here's our result from the above
+
+{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000003'), "person_id"=>"msinclair", 
+"name"=>"Mandy Sinclair", "age"=>27}
+{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000004'), "person_id"=>"jjam", "name"=
+>"Janna Jamme", "age"=>18, "url"=>"/person/jjam"}
+
+BSON::ObjectId('4f7fa71b9be63c1c94000005')
+BSON::ObjectId('4f7fa71b9be63c1c94000006')
+BSON::ObjectId('4f7fa71b9be63c1c94000007')
+BSON::ObjectId('4f7fa71b9be63c1c94000008')
+
+{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000003'), "person_id"=>"msinclair", 
+"name"=>"Mandy Sinclair", "age"=>27}
+{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000004'), "person_id"=>"jjam", "name"=
+>"Janna Jamme", "age"=>18, "url"=>"/person/jjam"}
+=end
+
 	def test_retrieve
 		person = PERSON_DAO.retrieve(KNOWN_PERSON_ID)
 		assert_not_nil(person)
@@ -131,5 +223,5 @@ class MongoDaoTest < Test::Unit::TestCase
 			end
 		end
 	end
-	
+=end
 end
