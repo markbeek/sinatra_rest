@@ -31,19 +31,12 @@ class PersonDao
 	#ensuring that we have a url if the doc doesn't provide one;
 	#if there is no such person to update, we raise an exception
 	def update(person_id, updated_person_info)
-	puts "ENTERING UPDATE"
 		person = @persons.find_one({"person_id" => person_id})
-	puts "retrieved person hash:"
-	p person
 		raise ("no such person: #{person_id}") if person.nil?
 		person['name'] = updated_person_info['name']
 		person['age'] = updated_person_info['age']
 		person['url'] = PATH + person_id
-	puts "person hash preparing to send as replacement"
-	p person
 		@persons.update({"person_id" => person_id}, person, :safe => true)
-	puts "person hash as return object"
-	p person
 		person
 	end
 

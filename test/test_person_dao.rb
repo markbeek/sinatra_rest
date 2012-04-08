@@ -120,26 +120,6 @@ class MongoDaoTest < Test::Unit::TestCase
 		puts
 	end
 	
-=begin
-	
-#here's our result from the above
-
-{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000003'), "person_id"=>"msinclair", 
-"name"=>"Mandy Sinclair", "age"=>27}
-{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000004'), "person_id"=>"jjam", "name"=
->"Janna Jamme", "age"=>18, "url"=>"/person/jjam"}
-
-BSON::ObjectId('4f7fa71b9be63c1c94000005')
-BSON::ObjectId('4f7fa71b9be63c1c94000006')
-BSON::ObjectId('4f7fa71b9be63c1c94000007')
-BSON::ObjectId('4f7fa71b9be63c1c94000008')
-
-{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000003'), "person_id"=>"msinclair", 
-"name"=>"Mandy Sinclair", "age"=>27}
-{"_id"=>BSON::ObjectId('4f7fa71b9be63c1c94000004'), "person_id"=>"jjam", "name"=
->"Janna Jamme", "age"=>18, "url"=>"/person/jjam"}
-=end
-
 	def test_retrieve
 		person = PERSON_DAO.retrieve(KNOWN_PERSON_ID)
 		assert_not_nil(person)
@@ -161,12 +141,27 @@ BSON::ObjectId('4f7fa71b9be63c1c94000008')
 			"age" => 28
 		}
 		updated_person = PERSON_DAO.update(KNOWN_PERSON_ID,updated_person_info)
+		#updated_person is the hash returned by the dao, so we'll check it first
 		assert_equal(KNOWN_PERSON_ID, updated_person['person_id'])
 		assert_equal("Mandy Married", updated_person['name'])
 		assert_equal(28, updated_person['age'])
 		assert_equal("/person/#{KNOWN_PERSON_ID}", updated_person['url'])
 		assert (updated_person["_id"].is_a? BSON::ObjectId)
-	end
+		#now let's check the document from the collection to make sure
+		#our returned value corresponds to reality
+		retrieved_person = PERSON_DAO.retrieve(KNOWN_PERSON_ID)
+		assert_not_nil(retrieved_person)
+		assert_equal(KNOWN_PERSON_ID, retrieved_person["person_id"])
+		assert_equal("Mandy Married", retrieved_person["name"])
+		assert_equal(28, retrieved_person["age"])
+		assert (retrieved_person["_id"].is_a? BSON::ObjectId)
+
+puts
+puts "retrieved_person"
+p retrieved_person
+puts
+
+		end
 
 	def test_update_nonexistent_person
 		updated_person_info = {

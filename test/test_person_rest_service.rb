@@ -106,6 +106,8 @@ class PersonServiceTest < Test::Unit::TestCase
 		post '/person', invalid_req_body
 		assert_equal 400, last_response.status		
 	end	
+
+
 	
 	def test_post_update_existing
 		update_req_body = JSON.generate({"name" => TEST_NAME, "age" => TEST_AGE})
@@ -118,12 +120,13 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal KNOWN_URL, response_hash['url']
 		#test the url for a get
 		get response_hash['url']
+		response_hash = JSON.parse(last_response.body)
 		assert_equal KNOWN_PERSON_ID, response_hash['person_id']
 		assert_equal TEST_NAME, response_hash['name']
 		assert_equal TEST_AGE, response_hash['age']
 		assert_equal KNOWN_URL, response_hash['url']
 	end
-
+	
 	def test_post_update_no_request_body
 		post "/person/#{KNOWN_PERSON_ID}"
 		assert_equal 400, last_response.status
