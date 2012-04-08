@@ -1,7 +1,4 @@
-#convenient file-based CRUD database,
-#backend for rest data,
-#no heed to efficiency,concurrency,etc
-#reads from and writes to yaml file on each call
+#DAO for MondoDb collection
 
 require 'mongo'
 
