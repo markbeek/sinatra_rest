@@ -61,6 +61,7 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal KNOWN_NAME, person_hash['name']
 		assert_equal KNOWN_AGE, person_hash['age']
 		assert_equal KNOWN_URL, person_hash['url']
+		assert_nil person_hash['_id']
 	end
 
 	def test_get_not_found
@@ -72,17 +73,25 @@ class PersonServiceTest < Test::Unit::TestCase
 		req_body = JSON.generate({"person_id" => TEST_PERSON_ID, "name" => TEST_NAME, "age" => TEST_AGE})
 		post '/person', req_body
 		response_hash = JSON.parse(last_response.body)
+		
+		puts
+		puts "in test, hash from create:"
+		p response_hash
+		puts
+		
 		assert_equal 200, last_response.status
 		assert_equal TEST_PERSON_ID, response_hash['person_id']
 		assert_equal TEST_NAME, response_hash['name']
 		assert_equal TEST_AGE, response_hash['age']
 		assert_equal TEST_URL, response_hash['url']
+		assert_nil response_hash['_id']
 		#just for kicks, test the url for a get
 		get response_hash['url']
 		assert_equal TEST_PERSON_ID, response_hash['person_id']
 		assert_equal TEST_NAME, response_hash['name']
 		assert_equal TEST_AGE, response_hash['age']
 		assert_equal TEST_URL, response_hash['url']	
+		assert_nil response_hash['_id']
 	end	
 
 	def test_post_create_no_request_body
@@ -118,6 +127,7 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal TEST_NAME, response_hash['name']
 		assert_equal TEST_AGE, response_hash['age']
 		assert_equal KNOWN_URL, response_hash['url']
+		assert_nil response_hash['_id']
 		#test the url for a get
 		get response_hash['url']
 		response_hash = JSON.parse(last_response.body)
@@ -125,6 +135,7 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal TEST_NAME, response_hash['name']
 		assert_equal TEST_AGE, response_hash['age']
 		assert_equal KNOWN_URL, response_hash['url']
+		assert_nil response_hash['_id']
 	end
 	
 	def test_post_update_no_request_body
@@ -185,15 +196,18 @@ class PersonServiceTest < Test::Unit::TestCase
 				assert_equal KNOWN_NAME, person["name"]
 				assert_equal KNOWN_AGE, person["age"]
 				assert_equal KNOWN_URL, person["url"]
+				assert_nil person['_id']
 			#these two should have URLs because they were inserted by the DAO
 			elsif (person["person_id"] == TEST_PERSON_ID)
 				assert_equal TEST_NAME, person["name"]
 				assert_equal TEST_AGE, person["age"]
-				assert_equal TEST_URL, person["url"]				
+				assert_equal TEST_URL, person["url"]
+				assert_nil person['_id']
 			elsif (person['person_id'] == 'test2')
 				assert_equal "Test Two", person["name"]
 				assert_equal 2, person["age"]
 				assert_equal "/person/test2", person["url"]
+				assert_nil person['_id']
 			end
 		end
 	end

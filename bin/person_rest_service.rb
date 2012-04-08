@@ -55,6 +55,7 @@ post '/person' do
 		person_data = json_to_hash(req_body)
 		filtered_person_data = produce_person_hash(person_data)
 		person = person_dao.create(filtered_person_data)
+		person.delete(:_id) #service should not return technical keys, only business information
 		JSON.generate(person)
 	rescue
 		status 400 #bad request
@@ -65,6 +66,7 @@ end
 get '/person/:person_id' do
 	person = person_dao.retrieve(params[:person_id])
 	if person
+		person.delete("_id") #service should not return technical keys, only business information
 		JSON.generate(person)
 	else
 		status 404	#Not Found
@@ -78,6 +80,7 @@ post '/person/:person_id' do
 		partial_person_data = json_to_hash(req_body)
 		filtered_person_data = produce_partial_person_hash(partial_person_data)
 		person = person_dao.update(params[:person_id], filtered_person_data)
+		person.delete("_id") #service should not return technical keys, only business information
 		JSON.generate(person)
 	rescue
 		status 400 #bad request
@@ -92,6 +95,9 @@ end
 #list of persons (each of which is a hash)
 get '/persons' do
 	persons = person_dao.list
+	persons.each do |person|
+		person.delete("_id") #service should not return technical keys, only business information
+	end
 	JSON.generate(persons)
 end
 
