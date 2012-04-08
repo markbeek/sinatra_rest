@@ -72,7 +72,6 @@ get '/person/:person_id' do
 end
 
 #Update (request must include a JSON body with name and age)
-#technically, this could be a put
 post '/person/:person_id' do
 	begin
 		req_body = get_request_body(request)

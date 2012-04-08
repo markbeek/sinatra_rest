@@ -161,6 +161,7 @@ BSON::ObjectId('4f7fa71b9be63c1c94000008')
 			"age" => 28
 		}
 		updated_person = PERSON_DAO.update(KNOWN_PERSON_ID,updated_person_info)
+		assert_equal(KNOWN_PERSON_ID, updated_person['person_id'])
 		assert_equal("Mandy Married", updated_person['name'])
 		assert_equal(28, updated_person['age'])
 		assert_equal("/person/#{KNOWN_PERSON_ID}", updated_person['url'])
@@ -223,5 +224,5 @@ BSON::ObjectId('4f7fa71b9be63c1c94000008')
 			end
 		end
 	end
-=end
+
 end
