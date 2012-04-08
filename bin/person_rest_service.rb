@@ -1,10 +1,8 @@
 #run locally:
 #ruby -I. bin/person_rest_service.rb prod
+#(prod indicates that we are using production rather than test db)
 #OR
 #bundle exec -I. ruby bin/person_rest_service.rb prod
-
-#for testing, leave out prod:
-#ruby -I. bin/person_rest_service.rb prod
 
 require 'sinatra'
 require 'json/pure'

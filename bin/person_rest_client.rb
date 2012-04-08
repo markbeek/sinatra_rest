@@ -35,28 +35,6 @@ puts "/hello response: #{response}"
 
 puts
 
-=begin
-#####################################################################
-response = RestClient.post(
-	(host + "/person"),
-	JSON.generate({"person_id" => KNOWN_PERSON_ID, "name" => "Jayla Jastner", "age" => 23}), 
-	:content_type => 'application/json'
-) 
-puts "post create /person response code: #{response.code}"
-puts "post create /person response: #{response.body}"
-puts
-
-response = RestClient.post(
-	(host + "/person/#{KNOWN_PERSON_ID}"),
-	JSON.generate({"name" => "Mrs. Jayla Maynard", "age" => 24}), 
-	:content_type => 'application/json'
-)
-puts "post update /person response code: #{response.code}"
-puts "post update /person response: #{response.body}"
-puts
-#####################################################################
-=end
-
 #create a person, retrieve her, update her, delete her
 
 #CREATE
@@ -107,7 +85,7 @@ begin
 	response = RestClient.get(host + "/person/#{KNOWN_PERSON_ID}")
 	#puts "get /person/#{KNOWN_PERSON_ID} response code: #{response.code}"
 rescue => e
-	puts "delete non-existing /person/#{KNOWN_PERSON_ID}
+	puts "delete non-existing /person/#{KNOWN_PERSON_ID}"
 	puts "#{e.message}"
 end
 puts

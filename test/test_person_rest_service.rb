@@ -73,12 +73,6 @@ class PersonServiceTest < Test::Unit::TestCase
 		req_body = JSON.generate({"person_id" => TEST_PERSON_ID, "name" => TEST_NAME, "age" => TEST_AGE})
 		post '/person', req_body
 		response_hash = JSON.parse(last_response.body)
-		
-		puts
-		puts "in test, hash from create:"
-		p response_hash
-		puts
-		
 		assert_equal 200, last_response.status
 		assert_equal TEST_PERSON_ID, response_hash['person_id']
 		assert_equal TEST_NAME, response_hash['name']
@@ -116,8 +110,6 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal 400, last_response.status		
 	end	
 
-
-	
 	def test_post_update_existing
 		update_req_body = JSON.generate({"name" => TEST_NAME, "age" => TEST_AGE})
 		post "/person/#{KNOWN_PERSON_ID}", update_req_body
@@ -158,9 +150,7 @@ class PersonServiceTest < Test::Unit::TestCase
 		assert_equal 1, PERSONS.count()
 		delete "/person/#{KNOWN_PERSON_ID}"
 		assert_equal 200, last_response.status
-		puts "COUNT: #{PERSONS.count()}"
 		assert_equal 0, PERSONS.count()
-		puts "COUNT  again: #{PERSONS.count()}"
 	end
 
 	
@@ -186,7 +176,6 @@ class PersonServiceTest < Test::Unit::TestCase
 		get '/persons'
 		persons = JSON.parse(last_response.body)
 		assert_equal 3, persons.length
-		puts "LIST COUNT: #{PERSONS.count()}"
 		persons.each do |person|
 			assert_not_nil(person["person_id"])
 			assert_not_nil(person["name"])

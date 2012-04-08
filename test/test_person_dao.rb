@@ -76,12 +76,6 @@ class MongoDaoTest < Test::Unit::TestCase
 		person = PERSON_DAO.create(
 			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
 		)
-		PERSONS.find().each do |person|
-			p person
-		end
-		puts
-		puts
-		
 		assert_equal 2, PERSONS.count()
 		assert_equal "jjam", person['person_id']
 		assert_equal "/person/jjam", person['url']
@@ -90,7 +84,6 @@ class MongoDaoTest < Test::Unit::TestCase
 		person2 = PERSON_DAO.create(
 			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
 		)
-		p person2[:_id]
 		assert_equal 2, PERSONS.count() #still 2
 		assert (person2[:_id].is_a? BSON::ObjectId)
 		id2 = person2[:_id]
@@ -100,24 +93,13 @@ class MongoDaoTest < Test::Unit::TestCase
 		person3 = PERSON_DAO.create(
 			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
 		)
-		p person3[:_id]
 		person4 = PERSON_DAO.create(
 			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
 		)
-		p person4[:_id]
 		person5 = PERSON_DAO.create(
 			{"person_id" => "jjam", "name" => "Janna Jamme", "age" => 18}
 		)
-		p person5[:_id]
-		puts
-		
 		assert_equal 2, PERSONS.count() #still 2	
-
-		#same as the first read
-		PERSONS.find().each do |person|
-			p person
-		end
-		puts
 	end
 	
 	def test_retrieve
@@ -155,13 +137,7 @@ class MongoDaoTest < Test::Unit::TestCase
 		assert_equal("Mandy Married", retrieved_person["name"])
 		assert_equal(28, retrieved_person["age"])
 		assert (retrieved_person["_id"].is_a? BSON::ObjectId)
-
-puts
-puts "retrieved_person"
-p retrieved_person
-puts
-
-		end
+	end
 
 	def test_update_nonexistent_person
 		updated_person_info = {
