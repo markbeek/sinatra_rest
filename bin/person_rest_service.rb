@@ -12,7 +12,8 @@ require_relative '../lib/dao/person_dao'
 #our default will be to use the test db;
 #for production, we pass in a parameter informing us
 #to us the production db
-PRODUCTION_DB = 'person_db'
+#PRODUCTION_DB = 'person_db'
+PRODUCTION_DB = 'app3497606' #MongoHq via Heroku
 db_name = 'test'
 if ARGV[0] && ARGV[0].match(/prod/)
 	db_name = PRODUCTION_DB
