@@ -20,7 +20,7 @@ if ARGV[0] && ARGV[0].match(/prod/)
 end
 puts "********db_name: #{db_name}*********"
 
-con = Mongo::Connection.new("staff.mongohq.com")
+con = Mongo::Connection.new("staff.mongohq.com", "10019")
 db = con[db_name]
 persons = db['persons']
 person_dao = PersonDao.new(persons)
