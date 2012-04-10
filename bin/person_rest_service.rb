@@ -20,7 +20,7 @@ if ARGV[0] && ARGV[0].match(/prod/)
 	db_name = PRODUCTION_DB
 end
 puts "********db_name: #{db_name}*********"
-puts "MONGOHQ_URL: #{MONGOHQ_URL}"
+puts "MONGOHQ_URL: #{ENV['MONGOHQ_URL']}"
 
 uri = URI.parse(ENV['MONGOHQ_URL'])
 puts "uri.host: #{uri.host}"
