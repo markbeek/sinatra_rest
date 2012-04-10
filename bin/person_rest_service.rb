@@ -29,6 +29,10 @@ puts "uri.path(this is db name): #{uri.path}"
 puts "uri.user: #{uri.user}"
 puts "uri.password: #{uri.password}"
 
+conn = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
+db = conn.db(uri.path.gsub(/^\//, ''))
+
+=begin
 con = Mongo::Connection.new(uri.host,uri.port)
 db_name = uri.path.gsub(/^\//,'')
 puts "dbname: #{db_name}"
@@ -36,6 +40,7 @@ db = con[db_name]
 db.authenticate(uri.user,uri.password)
 persons = db['persons']
 person_dao = PersonDao.new(persons)
+=end
 
 #browser verification filter
 before '/hello' do
