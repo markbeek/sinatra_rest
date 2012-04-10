@@ -31,7 +31,7 @@ puts "uri.password: #{uri.password}"
 
 con = Mongo::Connection.new(uri.host,uri.port)
 db_name = uri.path.gsub(/^\//,'')
-puts "dbname: #{dbname}"
+puts "dbname: #{db_name}"
 db = con[db_name]
 db.authenticate(uri.user,uri.password)
 persons = db['persons']
