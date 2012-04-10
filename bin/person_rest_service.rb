@@ -6,6 +6,7 @@
 
 require 'sinatra'
 require 'json/pure'
+require 'uri'
 require_relative '../lib/dao/person_dao'
 
 #since rack/test runs this program without args,
@@ -19,9 +20,20 @@ if ARGV[0] && ARGV[0].match(/prod/)
 	db_name = PRODUCTION_DB
 end
 puts "********db_name: #{db_name}*********"
+puts "MONGOHQ_URL: #{MONGOHQ_URL}"
 
-con = Mongo::Connection.new("staff.mongohq.com", "10019")
+uri = URI.parse(ENV['MONGOHQ_URL'])
+puts "uri.host: #{uri.host}"
+puts "uri.port: #{uri.port}"
+puts "uri.path(this is db name): #{uri.path}"
+puts "uri.user: #{uri.user}"
+puts "uri.password: #{uri.password}"
+
+con = Mongo::Connection.new(uri.host,uri.port)
+db_name = uri.path.gsub(/^\//,'')
+puts "dbname: #{dbname}"
 db = con[db_name]
+db.authenticate(uri.user,uri.password)
 persons = db['persons']
 person_dao = PersonDao.new(persons)
 
