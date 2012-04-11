@@ -41,7 +41,7 @@ puts "********db_name: #{db_name}*********"
 
 #PRODUCTION
 #for now, I must manually authenticate
-if env = 'prod'
+if env == 'prod'
 	uri = URI.parse(ENV['MONGOHQ_URL'])
 	con = Mongo::Connection.new(uri.host,uri.port)
 	db_name = uri.path.gsub(/^\//,'')
