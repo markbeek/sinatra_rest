@@ -1,9 +1,11 @@
 #run from root with
-#ruby -I. bin/person_rest_client.rb
+
+#local
+#ruby -I. bin/person_rest_client.rb http://localhost:4567
 #(after starting person service)
 
 #for heroku, run with:
-#ruby -I. bin/person_rest_client.rb http://severe-sword-1427.herokuapp.com
+#ruby -I. bin/person_rest_client.rb
 
 #this client will exercise the rest_client API
 

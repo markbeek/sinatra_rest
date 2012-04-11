@@ -1,11 +1,15 @@
 #run locally:
-#ruby -I. bin/person_rest_service.rb prod
+
+#start mongo
+
+#ruby -I. bin/person_rest_service.rb dev
 #(prod indicates that we are using production rather than test db)
 #OR
-#bundle exec -I. ruby bin/person_rest_service.rb dev
+#bundle exec ruby bin/person_rest_service.rb dev
 #(dev indicates we are running locally using local db)
-#OR
-#bundle exec -I. ruby bin/person_rest_service.rb prod
+
+#remote (in Procfile)
+#bundle exec -I. ruby bin/person_rest_service.rb prod -p $PORT
 
 
 
