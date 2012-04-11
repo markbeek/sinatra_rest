@@ -65,6 +65,7 @@ person_dao = PersonDao.new(persons)
 #but apparently the given url still has the original one
 #so I can't use the automated version of authentication
 #if I ever create another heroku account, I'll keep the default
+uri = URI.parse(ENV['MONGOHQ_URL'])
 con = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
 db = con.db(uri.path.gsub(/^\//, ''))
 persons = db['persons']
