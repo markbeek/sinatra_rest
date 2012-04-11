@@ -36,10 +36,27 @@ puts "/hello response: #{response}"
 
 puts
 
+#############################
+#TEST
+#############################
+response = nil
+begin
+	response = RestClient.get(host + "/person/#{KNOWN_PERSON_ID}")
+	puts "get /person/#{KNOWN_PERSON_ID} response code: #{response.code}"
+	puts "get /person/#{KNOWN_PERSON_ID} response: #{response.body}"
+	puts
+rescue => e
+	puts ("e.message: #{e.message}")
+	puts "e: #{e}"
+	puts "response.body: #{response.body}" if response
+end
+
+
 #create a person, retrieve her, update her, delete her
 
 #we will always attempt to delete no matter what, so wrap rest in try/catch block
 
+=begin
 begin
 	#CREATE
 	response = RestClient.post(
@@ -86,6 +103,7 @@ ensure
 	puts
 end
 
+
 #check whether resource has been deleted
 #note, on 404 response not found, RestClient throws an exception,
 #so need to handle that instead of the response
@@ -97,5 +115,6 @@ rescue => e
 	puts "#{e.message}"
 end
 puts
+=end
 
 puts "client has completed work"
