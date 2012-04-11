@@ -2,7 +2,12 @@
 #ruby -I. bin/person_rest_service.rb prod
 #(prod indicates that we are using production rather than test db)
 #OR
+#bundle exec -I. ruby bin/person_rest_service.rb dev
+(dev indicates we are running locally using local db)
+#OR
 #bundle exec -I. ruby bin/person_rest_service.rb prod
+
+
 
 require 'sinatra'
 require 'json/pure'
@@ -13,23 +18,45 @@ require_relative '../lib/dao/person_dao'
 #our default will be to use the test db;
 #for production, we pass in a parameter informing us
 #to us the production db
-#PRODUCTION_DB = 'person_db'
-PRODUCTION_DB = 'app3497606' #MongoHq via Heroku
+DEV_DB = 'person_db'
 db_name = 'test'
-if ARGV[0] && ARGV[0].match(/prod/)
-	db_name = PRODUCTION_DB
+env = 'nonprod'
+if ARGV[0]
+	if ARGV[0].match(/dev/)
+		db_name = DEV_DB
+	elsif ARGV[0].match(/prod/)
+		env = 'prod'
+	end
 end
 puts "********db_name: #{db_name}*********"
-puts "MONGOHQ_URL: #{ENV['MONGOHQ_URL']}"
 
-uri = URI.parse(ENV['MONGOHQ_URL'])
-puts "uri.host: #{uri.host}"
-puts "uri.port: #{uri.port}"
-puts "uri.path(this is db name): #{uri.path}"
-puts "uri.user: #{uri.user}"
-puts "uri.password: #{uri.password}"
+#production-specific info
+#puts "MONGOHQ_URL: #{ENV['MONGOHQ_URL']}"
+#uri = URI.parse(ENV['MONGOHQ_URL'])
+#puts "uri.host: #{uri.host}"
+#puts "uri.port: #{uri.port}"
+#puts "uri.path(this is db name): #{uri.path}"
+#puts "uri.user: #{uri.user}"
+#puts "uri.password: #{uri.password}"
+
+#PRODUCTION
+#for now, I must manually authenticate
+if env = 'prod'
+	uri = URI.parse(ENV['MONGOHQ_URL'])
+	con = Mongo::Connection.new(uri.host,uri.port)
+	db_name = uri.path.gsub(/^\//,'')
+	db = con[db_name]
+	db.authenticate('heroku','password')
+else #test or dev
+	con = Mongo::Connection.new("localhost","27017")
+	db = con[db_name]
+end	
+	
+persons = db['persons']
+person_dao = PersonDao.new(persons)
 
 =begin
+#alternate production approaches
 #I changed the default password for my heroku user,
 #but apparently the given url still has the original one
 #so I can't use the automated version of authentication
@@ -39,15 +66,6 @@ db = con.db(uri.path.gsub(/^\//, ''))
 persons = db['persons']
 person_dao = PersonDao.new(persons)
 =end
-
-#for now, I must manually authenticate
-con = Mongo::Connection.new(uri.host,uri.port)
-db_name = uri.path.gsub(/^\//,'')
-puts "dbname: #{db_name}"
-db = con[db_name]
-db.authenticate('heroku','password')
-persons = db['persons']
-person_dao = PersonDao.new(persons)
 
 =begin
 #using my user
