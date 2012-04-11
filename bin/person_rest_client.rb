@@ -36,6 +36,7 @@ puts "/hello response: #{response}"
 
 puts
 
+=begin
 #############################
 #TEST
 #############################
@@ -50,13 +51,13 @@ rescue => e
 	puts "e: #{e}"
 	puts "response.body: #{response.body}" if response
 end
+=end
 
 
 #create a person, retrieve her, update her, delete her
 
 #we will always attempt to delete no matter what, so wrap rest in try/catch block
 
-=begin
 begin
 	#CREATE
 	response = RestClient.post(
@@ -115,6 +116,5 @@ rescue => e
 	puts "#{e.message}"
 end
 puts
-=end
 
 puts "client has completed work"
