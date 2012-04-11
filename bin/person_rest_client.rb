@@ -59,7 +59,41 @@ end
 #we will always attempt to delete no matter what, so wrap rest in try/catch block
 
 begin
+	#CREATE
+	response = RestClient.post(
+		(host + "/person"),
+		JSON.generate({"person_id" => KNOWN_PERSON_ID, "name" => "Jayla Jastner", "age" => 23}), 
+		:content_type => 'application/json'
+	) 
+	puts "post create /person response code: #{response.code}"
+	puts "post create /person response: #{response.body}"
+	puts
 
+	#RETRIEVE
+	response = RestClient.get(host + "/person/#{KNOWN_PERSON_ID}")
+	puts "get /person/#{KNOWN_PERSON_ID} response code: #{response.code}"
+	puts "get /person/#{KNOWN_PERSON_ID} response: #{response.body}"
+	#just for curiosity's sake:
+	#puts "get /person/#{KNOWN_PERSON_ID} headers:" 
+	#p response.headers
+	puts
+
+	#UPDATE
+	response = RestClient.post(
+		(host + "/person/#{KNOWN_PERSON_ID}"),
+		JSON.generate({"name" => "Mrs. Jayla Maynard", "age" => 24}), 
+		:content_type => 'application/json'
+	)
+	puts "post update /person response code: #{response.code}"
+	puts "post update /person response: #{response.body}"
+	puts
+
+	#check to make sure resource has changed
+	puts "CHECKING OUR UPDATE"
+	response = RestClient.get(host + "/person/#{KNOWN_PERSON_ID}")
+	puts "get /person/#{KNOWN_PERSON_ID} response code: #{response.code}"
+	puts "get /person/#{KNOWN_PERSON_ID} response: #{response.body}"
+	puts
 rescue => e
 		puts (e.message)
 		p e
