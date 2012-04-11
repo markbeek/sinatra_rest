@@ -29,23 +29,25 @@ puts "uri.path(this is db name): #{uri.path}"
 puts "uri.user: #{uri.user}"
 puts "uri.password: #{uri.password}"
 
+=begin
+#I changed the default password for my heroku user,
+#but apparently the given url still has the original one
+#so I can't use the automated version of authentication
+#if I ever create another heroku account, I'll keep the default
 con = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
 db = con.db(uri.path.gsub(/^\//, ''))
 persons = db['persons']
 person_dao = PersonDao.new(persons)
+=end
 
-
-=begin
+#for now, I must manually authenticate
 con = Mongo::Connection.new(uri.host,uri.port)
 db_name = uri.path.gsub(/^\//,'')
 puts "dbname: #{db_name}"
 db = con[db_name]
-#db.authenticate(uri.user,uri.password)
-#try hard coding pw from db
-db.authenticate(uri.user,'1718529b162473c29cc7a3f15b22fcb6')
+db.authenticate('heroku','password')
 persons = db['persons']
 person_dao = PersonDao.new(persons)
-=end
 
 =begin
 #using my user
